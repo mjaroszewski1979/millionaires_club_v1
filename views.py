@@ -4,7 +4,7 @@ from fastapi import Request, Form
 from starlette.requests import Request
 from utilities import CpiData
 
-
+# pointing to correct path for html templates
 templates = Jinja2Templates('templates')
 
 router = fastapi.APIRouter()
@@ -18,11 +18,15 @@ def form_get(request: Request):
 @router.post("/")
 def form_post(request: Request, country: str = Form(...)):
     result = str(country).upper()
+    
+    # Ensuring that provided country name match with existing data base record
     if result in cpi_data.countries:
         try:
             ticker = cpi_data.countries[result]
             cpi = cpi_data.get_cpi_all(ticker)
             return templates.TemplateResponse('index.html', context={'request': request, 'cpi': cpi, 'result': result})
+        
+        # Catching connection failure and flashing correct error message
         except ConnectionError:
             msg = 'Sorry, there was a problem with your request. Please try again later'
             return templates.TemplateResponse('index.html', context={'request': request, 'msg': msg})
