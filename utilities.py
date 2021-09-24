@@ -2,10 +2,13 @@ import pandas_datareader as pdr
 import numpy as np
 from threading import Thread
 
+# Creating a base class
 class CpiData:
     def __init__(self):
 
         self.cpi = []
+        
+        # Countries and associated symbols 
         self.countries = {
         'UNITED STATES' : 'ticker=CPIUS',
         'CHINA' : 'ticker=CPICN',
@@ -90,9 +93,12 @@ class CpiData:
         'UNITED KINGDOM' : 'ticker=CPIUK'
     }
 
+    # Fetching data from Econdb API and returning current inflation pace
     def get_cpi_all(self, ticker):
         data = pdr.DataReader(ticker, 'econdb')
         data = data.values
+        
+        # Comparing latest reading with 1 year average
         if np.mean(data[-12:]) < data[-1]:
             return 'ABOVE ITS 12-MONTH AVERAGE INDICATING INFLATION'
         else:
@@ -115,6 +121,7 @@ class CpiData:
             self.cpi.append(result)
             self.cpi.sort(key=lambda x: x[1])
 
+    # Creating individual thread for each call to Econdb API
     def get_cpi_g5(self):
 
         threads = []
